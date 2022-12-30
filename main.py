@@ -19,6 +19,7 @@ WIDTH = len(MAP[0])
 HEIGHT = len(MAP)
 SCREEN_WIDTH = WIDTH * BLOCK_SIDE
 SCREEN_HEIGHT = HEIGHT * BLOCK_SIDE
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 
 class Wall:
@@ -76,6 +77,8 @@ class Exit:
         self.state = "opened"
         for i in range(1, 3):
             self.draw(i)
+            pygame.display.flip()
+            pygame.time.wait(300)
 
     def draw(self, texture_n):
         screen.blit(self.door_textures[texture_n], self.pos)
@@ -92,8 +95,12 @@ class Key:
     def update_to_is_taken(self, pos):
         self.keys[pos] = "is taken"
 
-    def return_keys_coords(self):
-        return list(self.keys.keys())
+    def return_not_taken_keys(self):
+        not_taken = []
+        for key, state in self.keys.items():
+            if state == "not taken":
+                not_taken.append(key)
+        return not_taken
 
     def all_taken(self):
         if len(set(self.keys.values())) == 1:
@@ -173,7 +180,7 @@ class Maze:
         self.set_player_direction(self.player.direction)
         self.player.move()
         coord = self.get_player_cell()
-        if coord in self.keys.return_keys_coords():
+        if coord in self.keys.return_not_taken_keys():
             self.keys.update_to_is_taken(coord)
             if self.keys.all_taken():
                 self.exit.change_state()
@@ -182,9 +189,8 @@ class Maze:
         return (self.player.x, self.player.y)
 
 
-if __name__ == '__main__':
+def main():
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     maze = Maze()
     font = pygame.font.SysFont('arial', 60)
 
@@ -211,5 +217,8 @@ if __name__ == '__main__':
 
         pygame.display.flip()
         pygame.time.wait(100)
-pygame.quit()
+    pygame.quit()
 
+
+if __name__ == '__main__':
+    main()
