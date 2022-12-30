@@ -152,6 +152,7 @@ class Maze:
     def win(self):
         if self.get_player_cell() == self.exit.pos and self.exit.state == "opened":
             return True
+        return False
 
     def set_player_direction(self, direction):
         if self.player_can_move(direction):
@@ -192,12 +193,23 @@ class Maze:
 def main():
     pygame.init()
     maze = Maze()
-    font = pygame.font.SysFont('arial', 60)
+    f = pygame.font.Font(None, 100)
+    text = f.render("win", True, (255, 0, 0))
+
 
     running = True
 
     while running:
+        if maze.win():
+            screen.fill((0, 0, 0))
+            screen.blit(text, (text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))))
+            pygame.display.update()
+            pygame.time.wait(1000)
+            running = False
+
         for event in pygame.event.get():
+
+
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
@@ -214,6 +226,7 @@ def main():
         maze.move_player()
         screen.fill((0, 0, 0))
         maze.draw()
+
 
         pygame.display.flip()
         pygame.time.wait(100)
