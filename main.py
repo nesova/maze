@@ -1,6 +1,6 @@
 import pygame
 
-MAP = [
+MAP_2    = [
     '#######@###',
     '#         #',
     '# ### #####',
@@ -13,19 +13,32 @@ MAP = [
     '# #   # #K#',
     '#X#########',
 ]
-BLOCK_SIDE = 50
-CELL_SIDE = 50
-WIDTH = len(MAP[0])
-HEIGHT = len(MAP)
-SCREEN_WIDTH = WIDTH * BLOCK_SIDE
-SCREEN_HEIGHT = HEIGHT * BLOCK_SIDE
+
+MAP_1 = [
+    '##@###',
+    '#  #K#',
+    '# ## #',
+    '#    #',
+    '#X####',
+]
+
+WIDTH = len(MAP_1[0])
+HEIGHT = len(MAP_1)
+SCREEN_WIDTH = SCREEN_HEIGHT = 550
+CELL_SIDE = BLOCK_SIDE = SCREEN_HEIGHT // HEIGHT
+
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+
+def transform_im_size(texture):
+    resized_texture = pygame.transform.scale(texture, (CELL_SIDE, CELL_SIDE))
+    return resized_texture
 
 
 class Wall:
     def __init__(self):
         self.pos = []
-        self.texture = pygame.image.load(f'images/wall.png')
+        self.texture = transform_im_size(pygame.image.load(f'images/wall.png'))
 
     def get_coord(self, x, y):
         self.pos.append((x, y))
@@ -39,7 +52,7 @@ class Player:
     def __init__(self):
         self.x = 0
         self.y = 0
-        self.texture = pygame.image.load(f'images/player.png')
+        self.texture = transform_im_size(pygame.image.load(f'images/player.png'))
         self.step = CELL_SIDE
         self.direction = Direction.NONE
 
@@ -68,7 +81,8 @@ class Exit:
         self.door_textures = []
         self.state = "closed"
         for i in range(4):
-            self.door_textures.append(pygame.image.load(f'images/image_door{i}.png'))
+            texture = transform_im_size(pygame.image.load(f'images/image_door{i}.png'))
+            self.door_textures.append(texture)
 
     def get_coord(self, x, y):
         self.pos = (x, y)
@@ -87,7 +101,7 @@ class Exit:
 class Key:
     def __init__(self):
         self.keys = {}
-        self.texture = pygame.image.load(f'images/key.png')
+        self.texture = transform_im_size(pygame.image.load(f'images/key.png'))
 
     def get_coord(self, x, y):
         self.keys[(x, y)] = "not taken"
@@ -129,13 +143,13 @@ class Maze:
         self.exit = Exit()
         for i in range(HEIGHT):
             for j in range(WIDTH):
-                if MAP[i][j] == '#':
+                if MAP_1[i][j] == '#':
                     self.wall.get_coord(j * BLOCK_SIDE, i * BLOCK_SIDE)
-                elif MAP[i][j] == "@":
+                elif MAP_1[i][j] == "@":
                     self.player.get_pos(j * BLOCK_SIDE, i * BLOCK_SIDE)
-                elif MAP[i][j] == 'X':
+                elif MAP_1[i][j] == 'X':
                     self.exit.get_coord(j * BLOCK_SIDE, i * BLOCK_SIDE)
-                elif MAP[i][j] == 'K':
+                elif MAP_1[i][j] == 'K':
                     self.keys.get_coord(j * BLOCK_SIDE, i * BLOCK_SIDE)
         self.pos_walls = self.wall.pos
         self.pos_door = self.exit.pos
@@ -194,8 +208,7 @@ def main():
     pygame.init()
     maze = Maze()
     f = pygame.font.Font(None, 100)
-    text = f.render("win", True, (255, 0, 0))
-
+    text = f.render("You won!", True, (255, 0, 0))
 
     running = True
 
@@ -208,7 +221,6 @@ def main():
             running = False
 
         for event in pygame.event.get():
-
 
             if event.type == pygame.QUIT:
                 running = False
@@ -226,7 +238,6 @@ def main():
         maze.move_player()
         screen.fill((0, 0, 0))
         maze.draw()
-
 
         pygame.display.flip()
         pygame.time.wait(100)
