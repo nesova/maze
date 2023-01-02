@@ -1,29 +1,8 @@
 import pygame
+from maps import MAP_1, MAP_2
 
-MAP_2    = [
-    '#######@###',
-    '#         #',
-    '# ### #####',
-    '# # #     #',
-    '# # # ### #',
-    '#K# # #K# #',
-    '### # # # #',
-    '#   # #   #',
-    '# # # # # #',
-    '# #   # #K#',
-    '#X#########',
-]
-
-MAP_1 = [
-    '##@###',
-    '#  #K#',
-    '# ## #',
-    '#    #',
-    '#X####',
-]
-
-WIDTH = len(MAP_1[0])
-HEIGHT = len(MAP_1)
+WIDTH = len(MAP_2[0])
+HEIGHT = len(MAP_2)
 SCREEN_WIDTH = SCREEN_HEIGHT = 550
 CELL_SIDE = BLOCK_SIDE = SCREEN_HEIGHT // HEIGHT
 
@@ -143,13 +122,13 @@ class Maze:
         self.exit = Exit()
         for i in range(HEIGHT):
             for j in range(WIDTH):
-                if MAP_1[i][j] == '#':
+                if MAP_2[i][j] == '#':
                     self.wall.get_coord(j * BLOCK_SIDE, i * BLOCK_SIDE)
-                elif MAP_1[i][j] == "@":
+                elif MAP_2[i][j] == "@":
                     self.player.get_pos(j * BLOCK_SIDE, i * BLOCK_SIDE)
-                elif MAP_1[i][j] == 'X':
+                elif MAP_2[i][j] == 'X':
                     self.exit.get_coord(j * BLOCK_SIDE, i * BLOCK_SIDE)
-                elif MAP_1[i][j] == 'K':
+                elif MAP_2[i][j] == 'K':
                     self.keys.get_coord(j * BLOCK_SIDE, i * BLOCK_SIDE)
         self.pos_walls = self.wall.pos
         self.pos_door = self.exit.pos
@@ -204,24 +183,23 @@ class Maze:
         return (self.player.x, self.player.y)
 
 
-def main():
+def start_game():
     pygame.init()
     maze = Maze()
-    f = pygame.font.Font(None, 100)
-    text = f.render("You won!", True, (255, 0, 0))
+    f = pygame.font.SysFont("agencyfb", 70)
 
     running = True
 
     while running:
         if maze.win():
+            text = f.render("You won!", True, (132, 223, 211))
             screen.fill((0, 0, 0))
             screen.blit(text, (text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))))
             pygame.display.update()
-            pygame.time.wait(1000)
-            running = False
+            pygame.time.wait(3000)
+            break
 
         for event in pygame.event.get():
-
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
@@ -244,5 +222,4 @@ def main():
     pygame.quit()
 
 
-if __name__ == '__main__':
-    main()
+start_game()

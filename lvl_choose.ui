@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>550</width>
+    <height>550</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(1, 117, 140);</string>
+  </property>
+  <widget class="QPushButton" name="lvl1_btn">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>190</y>
+     <width>361</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton {
+font: 26pt &quot;Agency FB&quot;;
+color: rgb(132, 223, 211);
+background-color: rgb(5, 85, 95);
+}
+
+QPushButton:hover {
+color: rgb(110, 190, 180);
+}
+
+QPushButton:pressed {
+font: 23pt;
+}</string>
+   </property>
+   <property name="text">
+    <string>Level 1</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="lvl3_btn">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>410</y>
+     <width>361</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton {
+font: 26pt &quot;Agency FB&quot;;
+color: rgb(132, 223, 211);
+background-color: rgb(5, 85, 95);
+}
+
+QPushButton:hover {
+color: rgb(110, 190, 180);
+}
+
+QPushButton:pressed {
+font: 23pt;
+}</string>
+   </property>
+   <property name="text">
+    <string>Level 3</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="lvl2_btn">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>300</y>
+     <width>361</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton {
+font: 26pt &quot;Agency FB&quot;;
+color: rgb(132, 223, 211);
+background-color: rgb(5, 85, 95);
+}
+
+QPushButton:hover {
+color: rgb(110, 190, 180);
+}
+
+QPushButton:pressed {
+font: 23pt;
+}</string>
+   </property>
+   <property name="text">
+    <string>Level 2</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="choose_label">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>80</y>
+     <width>211</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font: 40pt &quot;Agency FB&quot;;
+color: rgb(132, 223, 211);</string>
+   </property>
+   <property name="text">
+    <string>Choose a lvl!</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
