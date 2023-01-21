@@ -2,6 +2,13 @@ import sys
 from lvl_choose import LvlChoose
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5 import QtCore, QtWidgets
+
+if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+
+if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
 
 class StartWindow(QWidget):

@@ -1,5 +1,13 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QWidget
+from main import start_game
+from PyQt5 import QtCore, QtWidgets
+
+if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+
+if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
 
 class LvlChoose(QWidget):
@@ -11,10 +19,14 @@ class LvlChoose(QWidget):
         self.lvl3_btn.clicked.connect(self.open_lvl3)
 
     def open_lvl1(self):
-        pass
+        self.hide()
+        if start_game(0):
+            self.show()
 
     def open_lvl2(self):
-        pass
+        self.hide()
+        if start_game(1):
+            self.show()
 
     def open_lvl3(self):
         pass

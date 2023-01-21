@@ -1,12 +1,9 @@
 import pygame
-from maps import MAP_1, MAP_2
+from maps import MAPS, PARAMS
 
-WIDTH = len(MAP_2[0])
-HEIGHT = len(MAP_2)
-SCREEN_WIDTH = SCREEN_HEIGHT = 550
-CELL_SIDE = BLOCK_SIDE = SCREEN_HEIGHT // HEIGHT
 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+game_map = None
+SCREEN_WIDTH = SCREEN_HEIGHT = 800
 
 
 def transform_im_size(texture):
@@ -122,13 +119,13 @@ class Maze:
         self.exit = Exit()
         for i in range(HEIGHT):
             for j in range(WIDTH):
-                if MAP_2[i][j] == '#':
+                if game_map[i][j] == '#':
                     self.wall.get_coord(j * BLOCK_SIDE, i * BLOCK_SIDE)
-                elif MAP_2[i][j] == "@":
+                elif game_map[i][j] == "@":
                     self.player.get_pos(j * BLOCK_SIDE, i * BLOCK_SIDE)
-                elif MAP_2[i][j] == 'X':
+                elif game_map[i][j] == 'X':
                     self.exit.get_coord(j * BLOCK_SIDE, i * BLOCK_SIDE)
-                elif MAP_2[i][j] == 'K':
+                elif game_map[i][j] == 'K':
                     self.keys.get_coord(j * BLOCK_SIDE, i * BLOCK_SIDE)
         self.pos_walls = self.wall.pos
         self.pos_door = self.exit.pos
@@ -183,7 +180,15 @@ class Maze:
         return (self.player.x, self.player.y)
 
 
-def start_game():
+def start_game(map_index=0):
+    global screen, game_map, CELL_SIDE, BLOCK_SIDE, HEIGHT, WIDTH
+    game_map = MAPS[map_index]
+    SCREEN_WIDTH = SCREEN_HEIGHT = PARAMS[map_index]
+    WIDTH = len(game_map[0])
+    HEIGHT = len(game_map)
+    CELL_SIDE = BLOCK_SIDE = SCREEN_HEIGHT // HEIGHT
+
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.init()
     maze = Maze()
     f = pygame.font.SysFont("agencyfb", 70)
@@ -220,6 +225,8 @@ def start_game():
         pygame.display.flip()
         pygame.time.wait(100)
     pygame.quit()
+    return True
 
 
-start_game()
+if __name__ == "__main__":
+    start_game()

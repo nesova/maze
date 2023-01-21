@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>550</width>
-    <height>550</height>
+    <height>433</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
   <widget class="QPushButton" name="lvl1_btn">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>190</y>
+     <x>90</x>
+     <y>90</y>
      <width>361</width>
      <height>81</height>
     </rect>
@@ -47,8 +47,8 @@ font: 23pt;
   <widget class="QPushButton" name="lvl3_btn">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>410</y>
+     <x>90</x>
+     <y>310</y>
      <width>361</width>
      <height>81</height>
     </rect>
@@ -75,8 +75,8 @@ font: 23pt;
   <widget class="QPushButton" name="lvl2_btn">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>300</y>
+     <x>90</x>
+     <y>200</y>
      <width>361</width>
      <height>81</height>
     </rect>
@@ -103,9 +103,9 @@ font: 23pt;
   <widget class="QLabel" name="choose_label">
    <property name="geometry">
     <rect>
-     <x>170</x>
-     <y>80</y>
-     <width>211</width>
+     <x>100</x>
+     <y>20</y>
+     <width>381</width>
      <height>51</height>
     </rect>
    </property>
