@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>550</width>
-    <height>433</height>
+    <height>560</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <property name="geometry">
     <rect>
      <x>90</x>
-     <y>90</y>
+     <y>180</y>
      <width>361</width>
      <height>81</height>
     </rect>
@@ -48,7 +48,7 @@ font: 23pt;
    <property name="geometry">
     <rect>
      <x>90</x>
-     <y>310</y>
+     <y>400</y>
      <width>361</width>
      <height>81</height>
     </rect>
@@ -76,7 +76,7 @@ font: 23pt;
    <property name="geometry">
     <rect>
      <x>90</x>
-     <y>200</y>
+     <y>290</y>
      <width>361</width>
      <height>81</height>
     </rect>
@@ -103,9 +103,9 @@ font: 23pt;
   <widget class="QLabel" name="choose_label">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>20</y>
-     <width>381</width>
+     <x>160</x>
+     <y>80</y>
+     <width>221</width>
      <height>51</height>
     </rect>
    </property>
