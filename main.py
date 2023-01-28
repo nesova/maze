@@ -2,16 +2,16 @@ import pygame
 import sys
 
 FPS = 50
-WIDTH = HEIGHT = 510
+size = (width, height) = (500, 500)
+screen = pygame.display.set_mode(size)
+clock = pygame.time.Clock()
 
+tile_size = (tile_width, tile_height) = (100, 100)
+player_image = pygame.transform.scale(pygame.image.load(f'images/player.png'), tile_size)
 tile_images = {
-    'wall': pygame.image.load(f'images/wall.png'),
-    'empty': pygame.image.load(f'images/ground.png')
+    'wall': pygame.transform.scale(pygame.image.load(f'images/wall.png'), tile_size),
+    'empty': pygame.transform.scale(pygame.image.load(f'images/ground.png'), tile_size)
 }
-
-tile_width = tile_height = 50
-player_image = pygame.image.load(f'images/player.png')
-
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
@@ -44,7 +44,19 @@ class Player(pygame.sprite.Sprite):
         super().__init__(player_group, all_sprites)
         self.image = player_image
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x + 15, tile_height * pos_y + 5)
+            tile_width * pos_x, tile_height * pos_y)
+
+    def move_up(self):
+        self.rect = self.rect.move(0, -tile_height)
+
+    def move_down(self):
+        self.rect = self.rect.move(0, +tile_height)
+
+    def move_right(self):
+        self.rect = self.rect.move(+tile_width, 0)
+
+    def move_left(self):
+        self.rect = self.rect.move(-tile_width, 0)
 
 
 def terminate():
@@ -63,7 +75,7 @@ def start_screen():
     intro_text = ["MAZE", "",
                   "Нажмите на экран, чтобы начать"]
 
-    background = pygame.transform.scale(pygame.image.load(f'images/background.png'), (WIDTH, HEIGHT))
+    background = pygame.transform.scale(pygame.image.load(f'images/background.png'), size)
     screen.blit(background, (0, 0))
     font = pygame.font.Font(None, 30)
     text_coord = 50
@@ -87,10 +99,30 @@ def start_screen():
         clock.tick(FPS)
 
 
-player, level_x, level_y = generate_level(load_level('map_1.txt'))
+def level_1():
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    player.move_up()
+                elif event.key == pygame.K_DOWN:
+                    player.move_down()
+                elif event.key == pygame.K_RIGHT:
+                    player.move_right()
+                elif event.key == pygame.K_LEFT:
+                    player.move_left()
+        screen.fill((0, 0, 0))
+        tiles_group.draw(screen)
+        player_group.draw(screen)
+
+        pygame.display.flip()
+        clock.tick(FPS)
+
 
 if __name__ == '__main__':
     pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    clock = pygame.time.Clock()
     start_screen()
+    player, level_x, level_y = generate_level(load_level('map_1.txt'))
+    level_1()
