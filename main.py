@@ -7,14 +7,16 @@ screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 
 tile_size = (tile_width, tile_height) = (100, 100)
-player_image = pygame.transform.scale(pygame.image.load(f'images/player.png'), tile_size)
+key_image = pygame.transform.scale(pygame.image.load(f'images/key.png'), tile_size)
 tile_images = {
     'wall': pygame.transform.scale(pygame.image.load(f'images/wall.png'), tile_size),
     'empty': pygame.transform.scale(pygame.image.load(f'images/ground.png'), tile_size)
 }
+
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
+key_group = pygame.sprite.Group()
 
 
 def generate_level(level):
@@ -25,6 +27,10 @@ def generate_level(level):
                 Tile('empty', x, y)
             elif level[y][x] == '#':
                 Tile('wall', x, y)
+            elif level[y][x] == 'K':
+                pass
+            elif level[y][x] == "X":
+                pass
             elif level[y][x] == '@':
                 Tile('empty', x, y)
                 new_player = Player(x, y)
@@ -39,24 +45,58 @@ class Tile(pygame.sprite.Sprite):
             tile_width * pos_x, tile_height * pos_y)
 
 
+class Key(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(key_group, all_sprites)
+        self.image = key_image
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+        self.taken = False
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
-        self.image = player_image
+        self.frames = []
+        self.down = pygame.transform.scale(pygame.image.load(f'images/player/down.png'), (400, 100))
+        self.cut_sheet(self.down, 4, 1)
+        self.cur_frame = 0
+        self.image = self.frames[self.cur_frame]
+        self.count = 0
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
 
-    def move_up(self):
-        self.rect = self.rect.move(0, -tile_height)
+    def cut_sheet(self, sheet, columns, rows):
+        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
+                                sheet.get_height() // rows)
+        for j in range(rows):
+            for i in range(columns):
+                frame_location = (self.rect.w * i, self.rect.h * j)
+                self.frames.append(sheet.subsurface(pygame.Rect(
+                    frame_location, self.rect.size)))
 
-    def move_down(self):
-        self.rect = self.rect.move(0, +tile_height)
+    def counter(self):
+        if self.count == 10:
+            self.count = 0
+            return True
+        self.count += 1
+        return False
 
-    def move_right(self):
-        self.rect = self.rect.move(+tile_width, 0)
-
-    def move_left(self):
-        self.rect = self.rect.move(-tile_width, 0)
+    def update(self, keys):
+        speed = 2
+        if keys[pygame.K_LSHIFT]:
+            speed = 4
+        if keys[pygame.K_LEFT]:
+            self.rect = self.rect.move(-speed, 0)
+        if keys[pygame.K_RIGHT]:
+            self.rect = self.rect.move(speed, 0)
+        if keys[pygame.K_UP]:
+            self.rect = self.rect.move(0, -speed)
+        if keys[pygame.K_DOWN]:
+            self.rect = self.rect.move(0, speed)
+            if self.counter():
+                self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+                self.image = self.frames[self.cur_frame]
 
 
 def terminate():
@@ -104,15 +144,9 @@ def level_1():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    player.move_up()
-                elif event.key == pygame.K_DOWN:
-                    player.move_down()
-                elif event.key == pygame.K_RIGHT:
-                    player.move_right()
-                elif event.key == pygame.K_LEFT:
-                    player.move_left()
+        keys = pygame.key.get_pressed()
+        player.update(keys)
+
         screen.fill((0, 0, 0))
         tiles_group.draw(screen)
         player_group.draw(screen)
