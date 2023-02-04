@@ -91,6 +91,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
 
+
+
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
                                 sheet.get_height() // rows)
@@ -118,7 +120,7 @@ class Player(pygame.sprite.Sprite):
                 self.rect = self.rect.move(speed, 0)
             if keys[pygame.K_UP]:
                 self.rect = self.rect.move(0, -speed)
-            if keys[pygame.K_DOWN]:
+            if keys[pygame.K_DOWN]:#and level_map[y + 1][x] != '#':
                 self.rect = self.rect.move(0, speed)
             if self.counter():
                 self.cur_frame = (self.cur_frame + 1) % len(self.frames)
@@ -168,7 +170,22 @@ def start_screen():
         clock.tick(FPS)
 
 
+class Camera:
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
+
+
 def level_1():
+    camera = Camera()
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -177,7 +194,9 @@ def level_1():
         pygame.sprite.groupcollide(player_group, key_group, False, True, ratio)
         keys = pygame.key.get_pressed()
         player.update(keys)
-
+        camera.update(player)
+        for sprite in all_sprites:
+            camera.apply(sprite)
         screen.fill((0, 0, 0))
         exit_group.draw(screen)
         tiles_group.draw(screen)
@@ -191,5 +210,5 @@ def level_1():
 if __name__ == '__main__':
     pygame.init()
     start_screen()
-    player, level_x, level_y = generate_level(load_level('map_1.txt'))
+    player, level_x, level_y = generate_level(load_level("map_2.txt"))
     level_1()
