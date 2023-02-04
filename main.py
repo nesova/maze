@@ -90,8 +90,12 @@ class Player(pygame.sprite.Sprite):
         self.count = 0
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
-
-
+        self.y = pos_y
+        self.x = pos_x
+        self.shift_left = 0
+        self.shift_right = 0
+        self.shift_up = 0
+        self.shift_down = 0
 
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
@@ -114,13 +118,29 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_LSHIFT]:
             speed = 4
         if True in keys:
-            if keys[pygame.K_LEFT]:
+            if keys[pygame.K_LEFT] and level_map[self.y][self.x - 1] != '#':
+                self.shift_left += speed
+                if self.shift_left == 100:
+                    self.x -= 1
+                    self.shift_left = 0
                 self.rect = self.rect.move(-speed, 0)
-            if keys[pygame.K_RIGHT]:
+            if keys[pygame.K_RIGHT] and level_map[self.y][self.x + 1] != '#':
+                self.shift_right += speed
+                if self.shift_right == 100:
+                    self.x += 1
+                    self.shift_right = 0
                 self.rect = self.rect.move(speed, 0)
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_UP] and level_map[self.y - 1][self.x] != '#':
+                self.shift_up += speed
+                if self.shift_up == 100:
+                    self.y -= 1
+                    self.shift_up = 0
                 self.rect = self.rect.move(0, -speed)
-            if keys[pygame.K_DOWN]:#and level_map[y + 1][x] != '#':
+            if keys[pygame.K_DOWN] and level_map[self.y + 1][self.x] != '#':
+                self.shift_down += speed
+                if self.shift_down == 100:
+                    self.y += 1
+                    self.shift_down = 0
                 self.rect = self.rect.move(0, speed)
             if self.counter():
                 self.cur_frame = (self.cur_frame + 1) % len(self.frames)
@@ -210,5 +230,6 @@ def level_1():
 if __name__ == '__main__':
     pygame.init()
     start_screen()
+    level_map = load_level("map_2.txt")
     player, level_x, level_y = generate_level(load_level("map_2.txt"))
     level_1()
