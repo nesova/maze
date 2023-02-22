@@ -12,6 +12,39 @@ poison_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 key_group = pygame.sprite.Group()
 exit_group = pygame.sprite.Group()
+stars_group = pygame.sprite.Group()
+
+
+GRAVITY = 0.2
+screen_rect = (0, 0, width, height)
+
+
+class Particle(pygame.sprite.Sprite):
+    fire = [pygame.image.load(f'images/star.png')]
+    for scale in (5, 10, 20):
+        fire.append(pygame.transform.scale(fire[0], (scale, scale)))
+
+    def __init__(self, pos, dx, dy):
+        super().__init__(stars_group)
+        self.image = random.choice(self.fire)
+        self.rect = self.image.get_rect()
+        self.velocity = [dx, dy]
+        self.rect.x, self.rect.y = pos
+        self.gravity = GRAVITY
+
+    def update(self):
+        self.velocity[1] += self.gravity
+        self.rect.x += self.velocity[0]
+        self.rect.y += self.velocity[1]
+        if not self.rect.colliderect(screen_rect):
+            self.kill()
+
+
+def create_particles(position):
+    particle_count = 40
+    numbers = range(-5, 6)
+    for _ in range(particle_count):
+        Particle(position, random.choice(numbers), random.choice(numbers))
 
 
 def generate_level(level):
@@ -188,7 +221,8 @@ def level():
             if event.type == pygame.QUIT:
                 terminate()
         ratio = pygame.sprite.collide_rect_ratio(0.7)
-        pygame.sprite.groupcollide(player_group, key_group, False, True, ratio)
+        if pygame.sprite.groupcollide(player_group, key_group, False, True, ratio) != {}:
+            create_particles((player.rect.x, player.rect.y))
         if pygame.sprite.groupcollide(player_group, poison_group, False, False, ratio) == {}:
             keys = pygame.key.get_pressed()
             player.update(keys)
@@ -207,11 +241,13 @@ def level():
         camera.update(player)
         for sprite in all_sprites:
             camera.apply(sprite)
+        stars_group.update()
         screen.fill((0, 0, 0))
         exit_group.draw(screen)
         poison_group.draw(screen)
         key_group.draw(screen)
         player_group.draw(screen)
+        stars_group.draw(screen)
 
         pygame.display.flip()
         clock.tick(FPS)
