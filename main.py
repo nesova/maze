@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 
 FPS = 50
 size = (width, height) = (500, 500)
