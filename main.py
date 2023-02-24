@@ -116,7 +116,7 @@ class Coins(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(coins_group, all_sprites)
         self.frames = []
-        self.move_im = pygame.transform.scale(pygame.image.load(f'images/coins movi.png'), (tile_width * 7, tile_height))
+        self.move_im = pygame.transform.scale(pygame.image.load(f'images/coins move.png'), (tile_width * 7, tile_height))
         self.cut_sheet(self.move_im, 7, 1)
         self.cur_frame = 0
         self.image = self.frames[self.cur_frame]
