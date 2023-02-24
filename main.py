@@ -398,4 +398,3 @@ if __name__ == '__main__':
         level_map = load_level(f"map_{i}.txt")
         player, level_x, level_y = generate_level(load_level(f"map_{i}.txt"))
         level()
-    final_window("Вы успешно выбрались!")
