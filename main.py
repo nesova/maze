@@ -2,11 +2,15 @@ import pygame
 import sys
 import random
 
+
 FPS = 50
 size = (width, height) = (500, 500)
 tile_size = (tile_width, tile_height) = (100, 100)
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
+
+collected_coins = 0
+
 
 all_sprites = pygame.sprite.Group()
 poison_group = pygame.sprite.Group()
@@ -18,10 +22,9 @@ coins_group = pygame.sprite.Group()
 ghost_group = pygame.sprite.Group()
 bat_group = pygame.sprite.Group()
 
-
 GRAVITY = 0.2
 screen_rect = (0, 0, width, height)
-collected_coins = 0
+
 
 class Particle(pygame.sprite.Sprite):
     fire = [pygame.image.load(f'images/star.png')]
@@ -115,7 +118,7 @@ class Key(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
 
-        
+
 class Coins(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(coins_group, all_sprites)
@@ -140,7 +143,7 @@ class Coins(pygame.sprite.Sprite):
         self.cur_frame += 0.2
         self.image = self.frames[int(self.cur_frame % 7)]
 
-         
+
 class Ghost(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(ghost_group, all_sprites)
@@ -158,8 +161,8 @@ class Ghost(pygame.sprite.Sprite):
             self.image = pygame.transform.flip(self.image, True, False)
         self.rect = self.rect.move(2 * self.dx, 0)
         self.dist -= 2
-        
-        
+
+
 class Bat(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(bat_group, all_sprites)
@@ -178,7 +181,7 @@ class Bat(pygame.sprite.Sprite):
         self.rect = self.rect.move(0, 4 * self.dy)
         self.dist -= 4
 
-        
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
@@ -278,7 +281,17 @@ def start_screen():
         pygame.display.flip()
         clock.tick(FPS)
 
-        
+
+def final_window(message):
+    screen.fill((0, 0, 0))
+    text(message, 40, width // 2, height // 2)
+    pygame.display.flip()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+
+
 def secret_lvl_window():
     screen.fill((0, 0, 0))
     text("Секретный уровень",  40, width // 2, height // 7 * 2)
@@ -295,17 +308,7 @@ def secret_lvl_window():
                     event.type == pygame.MOUSEBUTTONDOWN:
                 return
         pygame.display.flip()
-        clock.tick(FPS)       
-
-        
-def final_window(message):
-    screen.fill((0, 0, 0))
-    text(message, 40, width // 2, height // 2)
-    pygame.display.flip()
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                terminate()
+        clock.tick(FPS)
 
 
 def level():
@@ -319,24 +322,23 @@ def level():
         if pygame.sprite.groupcollide(player_group, ghost_group, False, False, ratio) != {}:
             pygame.mixer.music.stop()
             final_window("Вас настигла смерть...")
-            
+
         if pygame.sprite.groupcollide(player_group, bat_group, False, False, ratio) != {}:
             pygame.mixer.music.stop()
             final_window("Вас настигла смерть...")
-    
+
         if pygame.sprite.groupcollide(player_group, key_group, False, True, ratio) != {}:
             create_particles((player.rect.x, player.rect.y))
-            
-        if pygame.sprite.groupcollide(player_group, coins_group, False, True, ratio) != {}:
-            collected_coins += 1
-            collect_c.play()
-        
         if pygame.sprite.groupcollide(player_group, poison_group, False, False, ratio) == {}:
             keys = pygame.key.get_pressed()
             player.update(keys)
         else:
             pygame.mixer.music.stop()
             final_window("Вас настигла смерть...")
+
+        if pygame.sprite.groupcollide(player_group, coins_group, False, True, ratio) != {}:
+            collected_coins += 1
+            collect_c.play()
 
         if pygame.sprite.groupcollide(player_group, exit_group, False, False, ratio) != {}:
             if str(key_group) == "<Group(0 sprites)>":
@@ -350,17 +352,17 @@ def level():
         camera.update(player)
         for sprite in all_sprites:
             camera.apply(sprite)
+        ghost_group.update()
         stars_group.update()
         coins_group.update()
-        ghost_group.update()
         bat_group.update()
         screen.fill((0, 0, 0))
         exit_group.draw(screen)
         poison_group.draw(screen)
         key_group.draw(screen)
         player_group.draw(screen)
-        stars_group.draw(screen)
         coins_group.draw(screen)
+        stars_group.draw(screen)
         ghost_group.draw(screen)
         bat_group.draw(screen)
 
@@ -374,7 +376,7 @@ if __name__ == '__main__':
     pygame.mixer.music.play(-1)
     collect_c = pygame.mixer.Sound('sounds/pickupCoin.wav')
     start_screen()
-    for i in range(1, 4):
+    for i in range(1, 6):
         poison_group.empty()
         exit_group.empty()
         key_group.empty()
