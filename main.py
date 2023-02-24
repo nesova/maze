@@ -309,6 +309,7 @@ def final_window(message):
 
 
 def level():
+    global collected_coins
     camera = Camera()
     while True:
         for event in pygame.event.get():
@@ -325,7 +326,8 @@ def level():
             create_particles((player.rect.x, player.rect.y))
             
         if pygame.sprite.groupcollide(player_group, coins_group, False, True, ratio) != {}:
-            pass
+            collected_coins += 1
+            collect_c.play()
         
         if pygame.sprite.groupcollide(player_group, poison_group, False, False, ratio) == {}:
             keys = pygame.key.get_pressed()
@@ -365,6 +367,9 @@ def level():
 
 if __name__ == '__main__':
     pygame.init()
+    pygame.mixer.music.load("sounds/background.mp3")
+    pygame.mixer.music.play(-1)
+    collect_c = pygame.mixer.Sound('sounds/pickupCoin.wav')
     start_screen()
     for i in range(1, 4):
         poison_group.empty()
