@@ -16,11 +16,12 @@ exit_group = pygame.sprite.Group()
 stars_group = pygame.sprite.Group()
 coins_group = pygame.sprite.Group()
 ghost_group = pygame.sprite.Group()
+bat_group = pygame.sprite.Group()
 
 
 GRAVITY = 0.2
 screen_rect = (0, 0, width, height)
-
+collected_coins = 0
 
 class Particle(pygame.sprite.Sprite):
     fire = [pygame.image.load(f'images/star.png')]
@@ -64,6 +65,9 @@ def generate_level(level):
                 Coins(x, y)
             elif level[y][x] == 'G':
                 Ghost(x, y)
+                Poison(x, y)
+            elif level[y][x] == 'B':
+                Bat(x, y)
                 Poison(x, y)
             elif level[y][x] == '@':
                 new_player = Player(x, y)
@@ -144,18 +148,37 @@ class Ghost(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
         self.dx = 1
-        self.dy = 1
-        self.w_screen = width
+        self.affected_area = 500
+        self.dist = self.affected_area
 
     def update(self):
-        if self.w_screen < 0:
-            self.w_screen = width
+        if self.dist < 0:
+            self.dist = self.affected_area
             self.dx *= -1
             self.image = pygame.transform.flip(self.image, True, False)
         self.rect = self.rect.move(2 * self.dx, 0)
-        self.w_screen -= 2
+        self.dist -= 2
+        
+        
+class Bat(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(bat_group, all_sprites)
+        self.image = pygame.transform.scale(pygame.image.load(f'images/bat.png'), tile_size)
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+        self.dy = 1
+        self.affected_area = 1000
+        self.dist = self.affected_area
 
+    def update(self):
+        if self.dist < 0:
+            self.dist = self.affected_area
+            self.dy *= -1
+            self.image = pygame.transform.flip(self.image, False, True)
+        self.rect = self.rect.move(0, 4 * self.dy)
+        self.dist -= 4
 
+        
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
@@ -255,7 +278,26 @@ def start_screen():
         pygame.display.flip()
         clock.tick(FPS)
 
+        
+ def secret_lvl_window():
+    screen.fill((0, 0, 0))
+    text("Секретный уровень",  40, width // 2, height // 7 * 2)
+    text(" Ты собрал все монеты, так что ", 25, width // 5 * 2, height // 8 * 3)
+    text("впереди тебя ждет еще одно подземелье", 25, width // 6 * 3, height // 9 * 4)
+    text("Вперед, герой!!!", 25, width // 6 * 3, height // 10 * 5)
+    text("Нажмите, чтобы начать", 30, width // 2, height // 7 * 5)
+    pygame.display.flip()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN or \
+                    event.type == pygame.MOUSEBUTTONDOWN:
+                return
+        pygame.display.flip()
+        clock.tick(FPS)       
 
+        
 def final_window(message):
     screen.fill((0, 0, 0))
     text(message, 40, width // 2, height // 2)
@@ -276,6 +318,9 @@ def level():
         if pygame.sprite.groupcollide(player_group, ghost_group, False, False, ratio) != {}:
             final_window("Вас настигла смерть...")
             
+        if pygame.sprite.groupcollide(player_group, bat_group, False, False, ratio) != {}:
+            final_window("Вас настигла смерть...")
+    
         if pygame.sprite.groupcollide(player_group, key_group, False, True, ratio) != {}:
             create_particles((player.rect.x, player.rect.y))
             
@@ -303,6 +348,7 @@ def level():
         stars_group.update()
         coins_group.update()
         ghost_group.update()
+        bat_group.update()
         screen.fill((0, 0, 0))
         exit_group.draw(screen)
         poison_group.draw(screen)
@@ -311,6 +357,7 @@ def level():
         stars_group.draw(screen)
         coins_group.draw(screen)
         ghost_group.draw(screen)
+        bat_group.draw(screen)
 
         pygame.display.flip()
         clock.tick(FPS)
@@ -327,6 +374,11 @@ if __name__ == '__main__':
         stars_group.empty()
         coins_group.empty()
         ghost_group.empty()
+        bat_group.empty()
+        if collected_coins == 12 and i == 5:
+            i = 'secret'
+        elif i == 5:
+            final_window("Вы успешно выбрались!")
         level_map = load_level(f"map_{i}.txt")
         player, level_x, level_y = generate_level(load_level(f"map_{i}.txt"))
         level()
