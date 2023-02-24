@@ -15,6 +15,7 @@ key_group = pygame.sprite.Group()
 exit_group = pygame.sprite.Group()
 stars_group = pygame.sprite.Group()
 coins_group = pygame.sprite.Group()
+ghost_group = pygame.sprite.Group()
 
 
 GRAVITY = 0.2
@@ -61,6 +62,9 @@ def generate_level(level):
                 Exit(x, y)
             elif level[y][x] == "C":
                 Coins(x, y)
+            elif level[y][x] == 'G':
+                Ghost(x, y)
+                Poison(x, y)
             elif level[y][x] == '@':
                 new_player = Player(x, y)
     return new_player, x, y
@@ -131,6 +135,25 @@ class Coins(pygame.sprite.Sprite):
     def update(self):
         self.cur_frame += 0.2
         self.image = self.frames[int(self.cur_frame % 7)]
+
+         
+class Ghost(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(ghost_group, all_sprites)
+        self.image = pygame.transform.scale(pygame.image.load(f'images/ghost.png'), tile_size)
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+        self.dx = 1
+        self.dy = 1
+        self.w_screen = width
+
+    def update(self):
+        if self.w_screen < 0:
+            self.w_screen = width
+            self.dx *= -1
+            self.image = pygame.transform.flip(self.image, True, False)
+        self.rect = self.rect.move(2 * self.dx, 0)
+        self.w_screen -= 2
 
 
 class Player(pygame.sprite.Sprite):
@@ -250,6 +273,9 @@ def level():
             if event.type == pygame.QUIT:
                 terminate()
         ratio = pygame.sprite.collide_rect_ratio(0.7)
+        if pygame.sprite.groupcollide(player_group, ghost_group, False, False, ratio) != {}:
+            final_window("Вас настигла смерть...")
+            
         if pygame.sprite.groupcollide(player_group, key_group, False, True, ratio) != {}:
             create_particles((player.rect.x, player.rect.y))
             
@@ -276,6 +302,7 @@ def level():
             camera.apply(sprite)
         stars_group.update()
         coins_group.update()
+        ghost_group.update()
         screen.fill((0, 0, 0))
         exit_group.draw(screen)
         poison_group.draw(screen)
@@ -283,6 +310,7 @@ def level():
         player_group.draw(screen)
         stars_group.draw(screen)
         coins_group.draw(screen)
+        ghost_group.draw(screen)
 
         pygame.display.flip()
         clock.tick(FPS)
@@ -298,6 +326,7 @@ if __name__ == '__main__':
         player_group.empty()
         stars_group.empty()
         coins_group.empty()
+        ghost_group.empty()
         level_map = load_level(f"map_{i}.txt")
         player, level_x, level_y = generate_level(load_level(f"map_{i}.txt"))
         level()
