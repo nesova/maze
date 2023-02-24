@@ -14,6 +14,7 @@ player_group = pygame.sprite.Group()
 key_group = pygame.sprite.Group()
 exit_group = pygame.sprite.Group()
 stars_group = pygame.sprite.Group()
+coins_group = pygame.sprite.Group()
 
 
 GRAVITY = 0.2
@@ -58,6 +59,8 @@ def generate_level(level):
                 Key(x, y)
             elif level[y][x] == "X":
                 Exit(x, y)
+            elif level[y][x] == "C":
+                Coins(x, y)
             elif level[y][x] == '@':
                 new_player = Player(x, y)
     return new_player, x, y
@@ -103,6 +106,31 @@ class Key(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(pygame.image.load(f'images/key.png'), tile_size)
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
+
+        
+class Coins(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(coins_group, all_sprites)
+        self.frames = []
+        self.move_im = pygame.transform.scale(pygame.image.load(f'images/coins movi.png'), (tile_width * 7, tile_height))
+        self.cut_sheet(self.move_im, 7, 1)
+        self.cur_frame = 0
+        self.image = self.frames[self.cur_frame]
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+    def cut_sheet(self, sheet, columns, rows):
+        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
+                                sheet.get_height() // rows)
+        for j in range(rows):
+            for i in range(columns):
+                frame_location = (self.rect.w * i, self.rect.h * j)
+                self.frames.append(sheet.subsurface(pygame.Rect(
+                    frame_location, self.rect.size)))
+
+    def update(self):
+        self.cur_frame += 0.2
+        self.image = self.frames[int(self.cur_frame % 7)]
 
 
 class Player(pygame.sprite.Sprite):
@@ -224,6 +252,10 @@ def level():
         ratio = pygame.sprite.collide_rect_ratio(0.7)
         if pygame.sprite.groupcollide(player_group, key_group, False, True, ratio) != {}:
             create_particles((player.rect.x, player.rect.y))
+            
+        if pygame.sprite.groupcollide(player_group, coins_group, False, True, ratio) != {}:
+            pass
+        
         if pygame.sprite.groupcollide(player_group, poison_group, False, False, ratio) == {}:
             keys = pygame.key.get_pressed()
             player.update(keys)
@@ -243,12 +275,14 @@ def level():
         for sprite in all_sprites:
             camera.apply(sprite)
         stars_group.update()
+        coins_group.update()
         screen.fill((0, 0, 0))
         exit_group.draw(screen)
         poison_group.draw(screen)
         key_group.draw(screen)
         player_group.draw(screen)
         stars_group.draw(screen)
+        coins_group.draw(screen)
 
         pygame.display.flip()
         clock.tick(FPS)
@@ -262,6 +296,8 @@ if __name__ == '__main__':
         exit_group.empty()
         key_group.empty()
         player_group.empty()
+        stars_group.empty()
+        coins_group.empty()
         level_map = load_level(f"map_{i}.txt")
         player, level_x, level_y = generate_level(load_level(f"map_{i}.txt"))
         level()
