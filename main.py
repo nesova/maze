@@ -317,9 +317,11 @@ def level():
                 terminate()
         ratio = pygame.sprite.collide_rect_ratio(0.7)
         if pygame.sprite.groupcollide(player_group, ghost_group, False, False, ratio) != {}:
+            pygame.mixer.music.stop()
             final_window("Вас настигла смерть...")
             
         if pygame.sprite.groupcollide(player_group, bat_group, False, False, ratio) != {}:
+            pygame.mixer.music.stop()
             final_window("Вас настигла смерть...")
     
         if pygame.sprite.groupcollide(player_group, key_group, False, True, ratio) != {}:
@@ -333,6 +335,7 @@ def level():
             keys = pygame.key.get_pressed()
             player.update(keys)
         else:
+            pygame.mixer.music.stop()
             final_window("Вас настигла смерть...")
 
         if pygame.sprite.groupcollide(player_group, exit_group, False, False, ratio) != {}:
