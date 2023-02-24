@@ -321,19 +321,23 @@ def level():
         ratio = pygame.sprite.collide_rect_ratio(0.7)
         if pygame.sprite.groupcollide(player_group, ghost_group, False, False, ratio) != {}:
             pygame.mixer.music.stop()
+            loss.play()
             final_window("Вас настигла смерть...")
 
         if pygame.sprite.groupcollide(player_group, bat_group, False, False, ratio) != {}:
             pygame.mixer.music.stop()
+            loss.play()
             final_window("Вас настигла смерть...")
 
         if pygame.sprite.groupcollide(player_group, key_group, False, True, ratio) != {}:
             create_particles((player.rect.x, player.rect.y))
+            collect_k.play()
         if pygame.sprite.groupcollide(player_group, poison_group, False, False, ratio) == {}:
             keys = pygame.key.get_pressed()
             player.update(keys)
         else:
             pygame.mixer.music.stop()
+            loss.play()
             final_window("Вас настигла смерть...")
 
         if pygame.sprite.groupcollide(player_group, coins_group, False, True, ratio) != {}:
@@ -375,6 +379,8 @@ if __name__ == '__main__':
     pygame.mixer.music.load("sounds/background.mp3")
     pygame.mixer.music.play(-1)
     collect_c = pygame.mixer.Sound('sounds/pickupCoin.wav')
+    collect_k = pygame.mixer.Sound('sounds/pickupKey.wav')
+    loss = pygame.mixer.Sound('sounds/loss.wav')
     start_screen()
     for i in range(1, 6):
         poison_group.empty()
