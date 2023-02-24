@@ -279,7 +279,7 @@ def start_screen():
         clock.tick(FPS)
 
         
- def secret_lvl_window():
+def secret_lvl_window():
     screen.fill((0, 0, 0))
     text("Секретный уровень",  40, width // 2, height // 7 * 2)
     text(" Ты собрал все монеты, так что ", 25, width // 5 * 2, height // 8 * 3)
