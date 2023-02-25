@@ -305,6 +305,22 @@ def final_window(message):
                 terminate()
 
 
+def second_lvl(lvl_coins=0):
+    background = pygame.transform.scale(pygame.image.load(f'images/lvl up {lvl_coins} coins.png'), size)
+    screen.blit(background, (0, 0))
+    text("LEVEL UP", 80, width // 2, height // 7 * 2)
+    text("  Нажмите, чтобы продолжить", 30, width // 5 * 2, height // 7 * 5)
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN or \
+                    event.type == pygame.MOUSEBUTTONDOWN:
+                return
+        pygame.display.flip()
+        clock.tick(FPS)
+
+
 def secret_lvl_window():
     screen.fill((0, 0, 0))
     text("Секретный уровень", 40, width // 2, height // 7 * 2)
@@ -325,7 +341,7 @@ def secret_lvl_window():
 
 
 def level():
-    global collected_coins
+    global lvl_coins
     camera = Camera()
     while True:
         for event in pygame.event.get():
@@ -360,7 +376,7 @@ def level():
             player.is_web = False
 
         if pygame.sprite.groupcollide(player_group, coins_group, False, True, ratio) != {}:
-            collected_coins += 1
+            lvl_coins += 1
             collect_c.play()
 
         if pygame.sprite.groupcollide(player_group, exit_group, False, False, ratio) != {}:
@@ -407,6 +423,7 @@ if __name__ == '__main__':
     open_door = pygame.mixer.Sound('sounds/open door.wav')
     start_screen()
     for i in range(1, 6):
+        lvl_coins = 0
         poison_group.empty()
         exit_group.empty()
         key_group.empty()
@@ -423,4 +440,6 @@ if __name__ == '__main__':
         level_map = load_level(f"map_{i}.txt")
         player, level_x, level_y = generate_level(load_level(f"map_{i}.txt"))
         level()
+        second_lvl(lvl_coins)
+        collected_coins += lvl_coins
     final_window("Вы успешно выбрались!")
