@@ -406,7 +406,7 @@ if __name__ == '__main__':
     loss = pygame.mixer.Sound('sounds/loss.wav')
     open_door = pygame.mixer.Sound('sounds/open door.wav')
     start_screen()
-    for i in range(3, 6):
+    for i in range(1, 6):
         poison_group.empty()
         exit_group.empty()
         key_group.empty()
