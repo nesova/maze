@@ -1,49 +1,24 @@
-import pygame
 import sys
 import random
-
-FPS = 50
-size = (width, height) = (500, 500)
-tile_size = (tile_width, tile_height) = (100, 100)
-screen = pygame.display.set_mode(size)
-clock = pygame.time.Clock()
-
-collected_coins = 0
-
-all_sprites = pygame.sprite.Group()
-poison_group = pygame.sprite.Group()
-player_group = pygame.sprite.Group()
-key_group = pygame.sprite.Group()
-exit_group = pygame.sprite.Group()
-stars_group = pygame.sprite.Group()
-coins_group = pygame.sprite.Group()
-ghost_group = pygame.sprite.Group()
-bat_group = pygame.sprite.Group()
-web_group = pygame.sprite.Group()
-
-GRAVITY = 0.2
-screen_rect = (0, 0, width, height)
+from data import *
+from sprites.mob_sprites import Ghost, Bat
+from sprites.block_sprites import Exit, Poison, Web
+from sprites.player_sprite import Player
+from sprites.collecting_sprites import Particle, Key, Coins
 
 
-class Particle(pygame.sprite.Sprite):
-    fire = [pygame.image.load(f'images/star.png')]
-    for scale in (5, 10, 20):
-        fire.append(pygame.transform.scale(fire[0], (scale, scale)))
+class Camera:
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
 
-    def __init__(self, pos, dx, dy):
-        super().__init__(stars_group)
-        self.image = random.choice(self.fire)
-        self.rect = self.image.get_rect()
-        self.velocity = [dx, dy]
-        self.rect.x, self.rect.y = pos
-        self.gravity = GRAVITY
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
 
-    def update(self):
-        self.velocity[1] += self.gravity
-        self.rect.x += self.velocity[0]
-        self.rect.y += self.velocity[1]
-        if not self.rect.colliderect(screen_rect):
-            self.kill()
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
 
 
 def create_particles(position):
@@ -78,186 +53,6 @@ def generate_level(level):
     return new_player, x, y
 
 
-class Poison(pygame.sprite.Sprite):
-    def __init__(self, pos_x, pos_y):
-        super().__init__(poison_group, all_sprites)
-        self.image = pygame.transform.scale(pygame.image.load(f'images/poison.png'), tile_size)
-        self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
-
-
-class Exit(pygame.sprite.Sprite):
-    def __init__(self, pos_x, pos_y):
-        super().__init__(exit_group, all_sprites)
-        self.frames = []
-        self.door_im = pygame.transform.scale(pygame.image.load(f'images/door.png'), (tile_width * 4, tile_height))
-        self.cut_sheet(self.door_im, 4, 1)
-        self.cur_frame = 0
-        self.image = self.frames[self.cur_frame]
-        self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
-        self.open = False
-
-    def cut_sheet(self, sheet, columns, rows):
-        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
-                                sheet.get_height() // rows)
-        for j in range(rows):
-            for i in range(columns):
-                frame_location = (self.rect.w * i, self.rect.h * j)
-                self.frames.append(sheet.subsurface(pygame.Rect(
-                    frame_location, self.rect.size)))
-
-    def update(self):
-        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
-        self.image = self.frames[self.cur_frame]
-
-
-class Key(pygame.sprite.Sprite):
-    def __init__(self, pos_x, pos_y):
-        super().__init__(key_group, all_sprites)
-        self.image = pygame.transform.scale(pygame.image.load(f'images/key.png'), tile_size)
-        self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
-
-
-class Web(pygame.sprite.Sprite):
-    def __init__(self, pos_x, pos_y):
-        super().__init__(web_group, all_sprites)
-        self.image = pygame.transform.scale(pygame.image.load(f'images/web.png'), tile_size)
-        self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
-
-
-class Coins(pygame.sprite.Sprite):
-    def __init__(self, pos_x, pos_y):
-        super().__init__(coins_group, all_sprites)
-        self.frames = []
-        self.move_im = pygame.transform.scale(pygame.image.load(f'images/coins move.png'),
-                                              (tile_width * 7, tile_height))
-        self.cut_sheet(self.move_im, 7, 1)
-        self.cur_frame = 0
-        self.image = self.frames[self.cur_frame]
-        self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
-
-    def cut_sheet(self, sheet, columns, rows):
-        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
-                                sheet.get_height() // rows)
-        for j in range(rows):
-            for i in range(columns):
-                frame_location = (self.rect.w * i, self.rect.h * j)
-                self.frames.append(sheet.subsurface(pygame.Rect(
-                    frame_location, self.rect.size)))
-
-    def update(self):
-        self.cur_frame += 0.2
-        self.image = self.frames[int(self.cur_frame % 7)]
-
-
-class Ghost(pygame.sprite.Sprite):
-    def __init__(self, pos_x, pos_y):
-        super().__init__(ghost_group, all_sprites)
-        self.image = pygame.transform.scale(pygame.image.load(f'images/ghost.png'), tile_size)
-        self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
-        self.dx = 1
-        self.affected_area = 500
-        self.dist = self.affected_area
-
-    def update(self):
-        if self.dist < 0:
-            self.dist = self.affected_area
-            self.dx *= -1
-            self.image = pygame.transform.flip(self.image, True, False)
-        self.rect = self.rect.move(2 * self.dx, 0)
-        self.dist -= 2
-
-
-class Bat(pygame.sprite.Sprite):
-    def __init__(self, pos_x, pos_y):
-        super().__init__(bat_group, all_sprites)
-        self.image = pygame.transform.scale(pygame.image.load(f'images/bat.png'), tile_size)
-        self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
-        self.dy = 1
-        self.affected_area = 1000
-        self.dist = self.affected_area
-
-    def update(self):
-        if self.dist < 0:
-            self.dist = self.affected_area
-            self.dy *= -1
-            self.image = pygame.transform.flip(self.image, False, True)
-        self.rect = self.rect.move(0, 4 * self.dy)
-        self.dist -= 4
-
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self, pos_x, pos_y):
-        super().__init__(player_group, all_sprites)
-        self.frames = []
-        self.move_im = pygame.transform.scale(pygame.image.load(f'images/player.png'), (tile_width * 4, tile_height))
-        self.cut_sheet(self.move_im, 4, 1)
-        self.cur_frame = 0
-        self.image = self.frames[self.cur_frame]
-        self.count = 0
-        self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
-        self.is_web = False
-
-    def cut_sheet(self, sheet, columns, rows):
-        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
-                                sheet.get_height() // rows)
-        for j in range(rows):
-            for i in range(columns):
-                frame_location = (self.rect.w * i, self.rect.h * j)
-                self.frames.append(sheet.subsurface(pygame.Rect(
-                    frame_location, self.rect.size)))
-
-    def counter(self):
-        if self.count == 10:
-            self.count = 0
-            return True
-        self.count += 1
-        return False
-
-    def update(self, keys):
-        speed = 2
-        if keys[pygame.K_LSHIFT]:
-            speed = 4
-        if self.is_web:
-            speed = 1
-        if True in keys:
-            if keys[pygame.K_LEFT]:
-                self.rect = self.rect.move(-speed, 0)
-            if keys[pygame.K_RIGHT]:
-                self.rect = self.rect.move(speed, 0)
-            if keys[pygame.K_UP]:
-                self.rect = self.rect.move(0, -speed)
-            if keys[pygame.K_DOWN]:
-                self.rect = self.rect.move(0, speed)
-            if self.counter():
-                self.cur_frame = (self.cur_frame + 1) % len(self.frames)
-                self.image = self.frames[self.cur_frame]
-        else:
-            self.cur_frame = 0
-            self.image = self.frames[self.cur_frame]
-
-
-class Camera:
-    def __init__(self):
-        self.dx = 0
-        self.dy = 0
-
-    def apply(self, obj):
-        obj.rect.x += self.dx
-        obj.rect.y += self.dy
-
-    def update(self, target):
-        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
-        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
-
-
 def terminate():
     pygame.quit()
     sys.exit()
@@ -278,7 +73,7 @@ def text(message, size, move_x, move_y):
     screen.blit(text, textRect)
 
 
-def start_screen():
+def start_screen():  # начальное окно
     background = pygame.transform.scale(pygame.image.load(f'images/background.png'), size)
     screen.blit(background, (0, 0))
     text(" MAZE", 80, width // 5, height // 7 * 2)
@@ -295,7 +90,7 @@ def start_screen():
         clock.tick(FPS)
 
 
-def final_window(message):
+def final_window(message):  # окно проигрыша или выигрыша
     screen.fill((0, 0, 0))
     text(message, 40, width // 2, height // 2)
     pygame.display.flip()
@@ -305,7 +100,7 @@ def final_window(message):
                 terminate()
 
 
-def second_lvl(lvl_coins=0):
+def second_lvl(lvl_coins=0):  # окно между уровнями
     background = pygame.transform.scale(pygame.image.load(f'images/lvl up {lvl_coins} coins.png'), size)
     screen.blit(background, (0, 0))
     text("LEVEL UP", 80, width // 2, height // 7 * 2)
@@ -321,7 +116,7 @@ def second_lvl(lvl_coins=0):
         clock.tick(FPS)
 
 
-def secret_lvl_window():
+def secret_lvl_window():  # окно перед секретным уровнем
     screen.fill((0, 0, 0))
     text("Секретный уровень", 40, width // 2, height // 7 * 2)
     text(" Ты собрал все монеты, так что ", 25, width // 5 * 2, height // 8 * 3)
@@ -340,7 +135,7 @@ def secret_lvl_window():
         clock.tick(FPS)
 
 
-def level():
+def level():  # окно загрузки уровня
     global lvl_coins
     camera = Camera()
     while True:
@@ -348,7 +143,6 @@ def level():
             if event.type == pygame.QUIT:
                 terminate()
         ratio = pygame.sprite.collide_rect_ratio(0.7)
-
         if pygame.sprite.groupcollide(player_group, ghost_group, False, False, ratio) != {}:
             pygame.mixer.music.stop()
             loss.play()
@@ -435,6 +229,7 @@ if __name__ == '__main__':
         web_group.empty()
         if collected_coins == 12 and i == 5:
             i = 'secret'
+            secret_lvl_window()
         elif i == 5:
             final_window("Вы успешно выбрались!")
         level_map = load_level(f"map_{i}.txt")
